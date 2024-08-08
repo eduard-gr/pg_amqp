@@ -1,6 +1,6 @@
 #include "postgres.h"
 #include "fmgr.h"
-#include "libpq-fe.h"
+//#include "libpq-fe.h"
 #include "utils/guc.h"
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
@@ -8,6 +8,14 @@
 #ifdef PG_MODULE_MAGIC
 PG_MODULE_MAGIC;
 #endif
+
+#define SET_BYTES_FROM_PG_TEXT_ARG(var,col) do{ \
+    if(!PG_ARGISNULL(col)) { \
+        text *txt = PG_GETARG_TEXT_PP(col); \
+        var.bytes = VARDATA_ANY(txt); \
+        var.len = VARSIZE_ANY_EXHDR(txt); \
+    } \
+}while(0)
 
 static amqp_connection_state_t connection;
 static amqp_socket_t *socket = NULL;
@@ -30,19 +38,23 @@ Datum pg_amqp_publish(PG_FUNCTION_ARGS)
         PG_RETURN_VOID();
     }
 
-    text *exchange = PG_GETARG_TEXT_P(0);
-    text *routing = PG_GETARG_TEXT_P(1);
-    text *message = PG_GETARG_TEXT_P(2);
+    amqp_bytes_t exchange;
+    amqp_bytes_t routing;
+    amqp_bytes_t message;
+
+    SET_BYTES_FROM_PG_TEXT_ARG(exchange, 0);
+    SET_BYTES_FROM_PG_TEXT_ARG(routing, 1);
+    SET_BYTES_FROM_PG_TEXT_ARG(message, 2);
 
     amqp_basic_publish(
         connection,
         /*channel*/ 1,
-        /*exchange*/ amqp_cstring_bytes(text_to_cstring(exchange)),
-        /*routing*/ amqp_cstring_bytes(text_to_cstring(routing)),
+        /*exchange*/ exchange,
+        /*routing*/ routing,
         0,
         0,
         NULL,
-        amqp_cstring_bytes(text_to_cstring(message)));
+        message);
 
     PG_RETURN_VOID();
 }
