@@ -23,10 +23,10 @@ Once amqp is installed, you can add it to a database. Add this line to your
 postgresql config
 
     shared_preload_libraries = 'pg_amqp.so'
-    amqp_host = 'localhost'
-    amqp_port = 5672
-    amqp_user = 'guest'
-    amqp_password = 'guest'
+    amqp.host = 'localhost'
+    amqp.port = 5672
+    amqp.user = 'guest'
+    amqp.password = 'guest'
 
 This extension requires PostgreSQL 9.1.0 or greater, so loading amqp is as simple
 as connecting to a database as a super user and running 

@@ -7,7 +7,11 @@ MODULES = src/pg_amqp
 
 DATA = sql/pg_amqp--1.0.sql
 
-SHLIB_LINK = $(libpq)
+INCLUDES = -I/usr/local/include
+LIBS = -lrabbitmq
 
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
+
+CFLAGS += $(INCLUDES)
+LDFLAGS += $(LIBS)

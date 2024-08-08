@@ -1,10 +1,11 @@
 #include "postgres.h"
-#include "postmaster/bgworker.h"
+#include "miscadmin.h"
 #include "fmgr.h"
-//#include "libpq-fe.h"
+
 #include "utils/guc.h"
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
+#include <limits.h>
 
 #ifdef PG_MODULE_MAGIC
 PG_MODULE_MAGIC;
@@ -75,7 +76,7 @@ void _PG_init(void)
     // Read RabbitMQ configuration from postgresql.conf
 
     DefineCustomStringVariable(
-        "amqp_host",
+        "amqp.host",
         gettext_noop("amqp server host"),
         NULL,
         &amqp_host,
@@ -85,7 +86,7 @@ void _PG_init(void)
         NULL, NULL, NULL);
 
     DefineCustomIntVariable(
-        "amqp_port",
+        "amqp.port",
         gettext_noop("amqp server port"),
         NULL,
         &amqp_port,
@@ -97,7 +98,7 @@ void _PG_init(void)
         NULL, NULL, NULL);
 
     DefineCustomStringVariable(
-        "amqp_user",
+        "amqp.user",
         gettext_noop("amqp server user"),
         NULL,
         &amqp_user,
@@ -107,7 +108,7 @@ void _PG_init(void)
         NULL, NULL, NULL);
 
     DefineCustomStringVariable(
-        "amqp_password",
+        "amqp.password",
         gettext_noop("amqp server password"),
         NULL,
         &amqp_password,
@@ -150,6 +151,8 @@ void _PG_init(void)
         elog(ERROR, "Failed to open channel with RabbitMQ.");
         return;
     }
+
+    elog(LOG, "pg amqp started");
 }
 
 void _PG_fini(void)
