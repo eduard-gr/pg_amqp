@@ -31,7 +31,7 @@ postgresql config
 This extension requires PostgreSQL 9.1.0 or greater, so loading amqp is as simple
 as connecting to a database as a super user and running 
 
-    CREATE EXTENSION amqp;
+    CREATE EXTENSION pg_amqp;
 
 If you've upgraded your cluster to PostgreSQL 9.1 and already had amqp
 installed, you can upgrade it to a properly packaged extension with:
@@ -42,4 +42,4 @@ Basic Usage
 
 A process starts and connects to PostgreSQL and runs:
 
-    SELECT amqp.publish('amqp.direct', 'foo', 'message');
+    SELECT amqp_publish('amqp.direct', 'foo', 'message');

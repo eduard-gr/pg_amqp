@@ -48,15 +48,24 @@ Datum pg_amqp_publish(PG_FUNCTION_ARGS)
     SET_BYTES_FROM_PG_TEXT_ARG(routing, 1);
     SET_BYTES_FROM_PG_TEXT_ARG(message, 2);
 
-    amqp_basic_publish(
+    amqp_basic_properties_t properties;
+    properties._flags = AMQP_BASIC_DELIVERY_MODE_FLAG;
+    properties.delivery_mode = 2;
+
+    int result;
+    result = amqp_basic_publish(
         connection,
         /*channel*/ 1,
         /*exchange*/ exchange,
         /*routing*/ routing,
         0,
         0,
-        NULL,
+        &properties,
         message);
+
+    if(result != AMQP_STATUS_OK){
+        elog(ERROR, "RabbitMQ failed to send message.");
+    }
 
     PG_RETURN_VOID();
 }
