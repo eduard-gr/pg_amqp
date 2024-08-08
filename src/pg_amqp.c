@@ -20,10 +20,10 @@ PG_MODULE_MAGIC;
 static amqp_connection_state_t connection;
 static amqp_socket_t *socket = NULL;
 
-static char *amqp_host = NULL;
+static char *amqp_host = "localhost";
 static int amqp_port = 5672;
-static char *amqp_user = NULL;
-static char *amqp_password = NULL;
+static char *amqp_user = "guest";
+static char *amqp_password = "guest";
 
 void _PG_init(void);
 void _PG_fini(void);
@@ -62,6 +62,51 @@ Datum pg_amqp_publish(PG_FUNCTION_ARGS)
 
 void _PG_init(void)
 {
+
+    // Read RabbitMQ configuration from postgresql.conf
+
+    DefineCustomStringVariable(
+        "amqp_host",
+        gettext_noop("amqp server host"),
+        NULL,
+        &amqp_host,
+        "localhost",
+        PGC_POSTMASTER,
+        GUC_SUPERUSER_ONLY,
+        NULL, NULL, NULL);
+
+    DefineCustomIntVariable(
+        "amqp_port",
+        gettext_noop("amqp server port"),
+        NULL,
+        &amqp_port,
+        5672,
+        0,
+        77777,
+        PGC_POSTMASTER,
+        GUC_SUPERUSER_ONLY,
+        NULL, NULL, NULL);
+
+    DefineCustomStringVariable(
+        "amqp_user",
+        gettext_noop("amqp server user"),
+        NULL,
+        &amqp_user,
+        "guest",
+        PGC_POSTMASTER,
+        GUC_SUPERUSER_ONLY,
+        NULL, NULL, NULL);
+
+    DefineCustomStringVariable(
+        "amqp_password",
+        gettext_noop("amqp server password"),
+        NULL,
+        &amqp_password,
+        "guest",
+        PGC_POSTMASTER,
+        GUC_SUPERUSER_ONLY,
+        NULL, NULL, NULL);
+
     connection = amqp_new_connection();
     socket = amqp_tcp_socket_new(connection);
     if (!socket) {
@@ -69,11 +114,6 @@ void _PG_init(void)
         return;
     }
 
-    // Read RabbitMQ configuration from postgresql.conf
-    amqp_host = GetConfigOption("amqp_host", true, true);
-    amqp_port = atoi(GetConfigOption("amqp_port", true, true));
-    amqp_user = GetConfigOption("amqp_user", true, true);
-    amqp_password = GetConfigOption("amqp_password", true, true);
 
     if (amqp_socket_open(socket, amqp_host, amqp_port)) {
         elog(ERROR, "Failed to open TCP socket to RabbitMQ.");
