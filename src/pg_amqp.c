@@ -1,4 +1,5 @@
 #include "postgres.h"
+#include "postmaster/bgworker.h"
 #include "fmgr.h"
 //#include "libpq-fe.h"
 #include "utils/guc.h"
