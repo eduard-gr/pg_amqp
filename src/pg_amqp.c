@@ -30,9 +30,9 @@ Datum pg_amqp_publish(PG_FUNCTION_ARGS)
         PG_RETURN_VOID();
     }
 
-    text *exchange varchar = PG_GETARG_TEXT_P(0);
-    text *routing varchar = PG_GETARG_TEXT_P(1);
-    text *message varchar = PG_GETARG_TEXT_P(2);
+    text *exchange = PG_GETARG_TEXT_P(0);
+    text *routing = PG_GETARG_TEXT_P(1);
+    text *message = PG_GETARG_TEXT_P(2);
 
     amqp_basic_publish(
         connection,

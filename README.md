@@ -16,7 +16,6 @@ To build pg_amqp, just do this:
     make
     make install
 
-
 Loading
 -------
 
