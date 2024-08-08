@@ -63,6 +63,14 @@ Datum pg_amqp_publish(PG_FUNCTION_ARGS)
 void _PG_init(void)
 {
 
+
+    if (!process_shared_preload_libraries_in_progress)
+    {
+        ereport(ERROR, (errmsg("pg_amqp can only be loaded via shared_preload_libraries"),
+                        errhint("Add pg_cron to the shared_preload_libraries "
+                                "configuration variable in postgresql.conf.")));
+    }
+
     // Read RabbitMQ configuration from postgresql.conf
 
     DefineCustomStringVariable(
@@ -82,7 +90,7 @@ void _PG_init(void)
         &amqp_port,
         5672,
         0,
-        77777,
+        INT_MAX,
         PGC_POSTMASTER,
         GUC_SUPERUSER_ONLY,
         NULL, NULL, NULL);
